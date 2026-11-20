@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gabriel Pellozi Annunciado — Game Dev CV</title>
+  <meta name="description" content="Game Developer CV of Gabriel Pellozi Annunciado">
+  <meta property="og:title" content="Gabriel Pellozi Annunciado — Game Dev CV">
+  <meta property="og:description" content="Game Developer CV">
+  <meta property="og:type" content="website">
+  <style>
+    :root {
+      --bg: #16181d;
+      --bar: #1f2229;
+      --text: #e8e9ec;
+      --muted: #9aa0ab;
+      --accent: #4f8cff;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    header {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px 20px; background: var(--bar);
+      border-bottom: 1px solid #2c3039;
+    }
+    header h1 { font-size: 16px; font-weight: 600; margin: 0; }
+    header h1 span { color: var(--muted); font-weight: 400; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 8px;
+      background: var(--accent); color: #fff; text-decoration: none;
+      font-size: 14px; font-weight: 600; white-space: nowrap;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    #viewer {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 16px; padding: 24px 12px 48px;
+    }
+    canvas {
+      display: block; width: 100%; max-width: 900px; height: auto;
+      background: #fff; border-radius: 4px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+    }
+    #status { color: var(--muted); padding: 40px; text-align: center; }
+    #status a { color: var(--accent); }
+    @media (max-width: 520px) {
+      header h1 span { display: none; }
+      #viewer { padding: 12px 6px 32px; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gabriel Pellozi Annunciado <span>— Game Dev CV</span></h1>
+    <a class="btn" href="CV-EN-Gabriel_Pellozi_Annunciado.pdf" download>⬇ Download PDF</a>
+  </header>
+
+  <main id="viewer">
+    <p id="status">Loading CV…</p>
+  </main>
+
+  <script type="module">
+    const PDF_URL = "CV-EN-Gabriel_Pellozi_Annunciado.pdf";
+    const PDFJS = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build";
+
+    const viewer = document.getElementById("viewer");
+    const status = document.getElementById("status");
+
+    try {
+      const pdfjsLib = await import(`${PDFJS}/pdf.min.mjs`);
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS}/pdf.worker.min.mjs`;
+
+      const pdf = await pdfjsLib.getDocument(PDF_URL).promise;
+      const pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) pages.push(await pdf.getPage(i));
+
+      let lastWidth = 0;
+      async function render() {
+        const width = Math.min(viewer.clientWidth - 24, 900);
+        if (Math.abs(width - lastWidth) < 20) return;
+        lastWidth = width;
+        const dpr = Math.min(window.devicePixelRatio || 1, 3);
+        const canvases = [];
+        for (const page of pages) {
+          const base = page.getViewport({ scale: 1 });
+          const viewport = page.getViewport({ scale: (width / base.width) * dpr });
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+          canvases.push(canvas);
+        }
+        viewer.replaceChildren(...canvases);
+      }
+
+      await render();
+      let t;
+      window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(render, 250); });
+    } catch (err) {
+      console.error(err);
+      status.innerHTML = `Couldn't display the CV here. <a href="${PDF_URL}">Open the PDF directly</a>.`;
+    }
+  </script>
+</body>
+</html>
