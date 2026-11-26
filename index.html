@@ -34,6 +34,9 @@
       font-size: 14px; font-weight: 600; white-space: nowrap;
     }
     .btn:hover { filter: brightness(1.1); }
+    .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .btn.ghost:hover { background: rgba(79,140,255,.12); filter: none; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
     #viewer {
       display: flex; flex-direction: column; align-items: center;
       gap: 16px; padding: 24px 12px 48px;
@@ -62,7 +65,10 @@
 <body>
   <header>
     <h1>Gabriel Pellozi Annunciado <span>— Game Dev CV</span></h1>
-    <a class="btn" href="CV-EN-Gabriel_Pellozi_Annunciado.pdf" download>⬇ Download PDF</a>
+    <div class="actions">
+      <a class="btn ghost" href="https://gabrielpellozi.github.io/portfolio/" target="_blank" rel="noopener">Portfolio ↗</a>
+      <a class="btn" href="CV-EN-Gabriel_Pellozi_Annunciado.pdf" download>⬇ Download PDF</a>
+    </div>
   </header>
 
   <main id="viewer">
